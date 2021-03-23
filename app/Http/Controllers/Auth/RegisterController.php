@@ -71,6 +71,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
+        // Creating Channel at the same time than creating an user
         $user->channel()->create([
             'name' => $data['channel_name'],
             'slug' => uniqid(true),
