@@ -14,7 +14,7 @@
                         </div>
                     @endif
 
-                    <form action="/channel/{{ $channel->slug }}/edit" method="POST">
+                    <form action="/channel/{{ $channel->slug }}/edit" method="POST" enctype="multipart/form-data">
 
                     <div class="form-group{{ $errors->has('name') ? 'has-error' : '' }}">
                         <label for="name">Name</label>
@@ -52,6 +52,11 @@
                                 {{ $errors->first('description') }}
                             </div>
                         @endif    
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Channel image</label>
+                        <input type="file" name="image" id="image">  
                     </div>
 
                     <button class="btn btn-primary" type="submit">Update</button>
