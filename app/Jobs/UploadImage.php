@@ -37,11 +37,11 @@ class UploadImage implements ShouldQueue
     public function handle()
     {
         // Get the current image path and assign it a name and an extension, resize it, upload to s3 and delete the temporary file
-        $path = storage_path() . '/uploads' . $this->fileId;
-        $filename = $this->fileId . '.png';
+        $path = storage_path() . '/uploads/' . $this->fileId;
+        $fileName = $this->fileId . '.png';
 
         // Using storage facade to send it to the S3 server
-        Storage::disk('s3images')->put('profile/' . $filename, fopen($path, 'r+'));
+        Storage::disk('s3images')->put('profile/' . $fileName, fopen($path, 'r+'));
 
     }
 }
