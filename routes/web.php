@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChannelSettingsController;
+use App\Http\Controllers\VideoUploadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,5 +26,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::group(['middleware' => ['auth']], function() {
     Route::get('/channel/{channel}/edit', [ ChannelSettingsController::class, 'edit']);
     Route::put('/channel/{channel}/edit', [ ChannelSettingsController::class, 'update']);
+    Route::get('/upload', [ VideoUploadController::class, 'index']);
 
 });
