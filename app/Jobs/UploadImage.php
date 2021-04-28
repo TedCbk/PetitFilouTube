@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\File;
+use Image;
 
 class UploadImage implements ShouldQueue
 {
@@ -40,8 +42,18 @@ class UploadImage implements ShouldQueue
         $path = storage_path() . '/uploads/' . $this->fileId;
         $fileName = $this->fileId . '.png';
 
-        // Using storage facade to send it to the S3 server
-        Storage::disk('s3images')->put('profile/' . $fileName, fopen($path, 'r+'));
+        // Resize the image with InterventionImage facade
+        Image::make($path)->encode('png')->fit(40, 40, function($c) {
+            $c->upsize();
+        })->save();
+
+        // Using storage facade to send it to the S3 server&delete it
+        if(Storage::disk('s3images')->put('profile/' . $fileName, fopen($path, 'r+'))) {
+            File::delete($path);
+        };
+
+        $this->channel->image_filename = $fileName;
+        $this->channel->save();
 
     }
 }
