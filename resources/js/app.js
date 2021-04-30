@@ -6,6 +6,8 @@
 
 require('./bootstrap');
 
+import VueResource from "vue-resource";
+
 window.Vue = require('vue').default;
 
 /**
@@ -21,6 +23,8 @@ window.Vue = require('vue').default;
 
 Vue.component('video-upload', require('./components/VideoUpload.vue').default);
 
+Vue.use(VueResource);
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -30,3 +34,5 @@ Vue.component('video-upload', require('./components/VideoUpload.vue').default);
 const app = new Vue({
     el: '#app',
 });
+
+Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk';

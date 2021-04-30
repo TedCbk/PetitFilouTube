@@ -28,9 +28,13 @@
 export default {
     data() {
         return {
+            uid: null,
             uploading: false,
             uploadingComplete: false,
-            failed: false
+            failed: false,
+            title: 'Untitled',
+            description: null,
+            visibility: 'private',
         };
     },
     methods: {
@@ -38,10 +42,30 @@ export default {
             this.uploading = true;
             this.failed = false;
 
-            // Store the metadata
+            this.file = document.getElementById('video').files[0];
+            
 
+        //    Upload a video
+            this.store().then(() => {
+
+
+            })
+             // Store the metadata
             // Upload the video
+        },
+        store() {
+            return this.$http.post('/videos', {
+                title: this.title,
+                description: this.description,
+                visibility: this.visibility,
+                extension: this.file.name.split('.').pop()
+            }).then((response) => {
+                this.uid = response.json().data.uid;
+            });
         }
+    },
+    ready() {
+
     }
 };
 </script>
