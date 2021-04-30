@@ -84,19 +84,35 @@ export default {
             this.file = document.getElementById("video").files[0];
 
             //    Upload a video
-            this.store().then(() => {});
+            this.store().then(() => {
+
+                var form = new FormData();
+
+                form.append('video', this.file);
+                form.append('uid', this.uid);
+
+                this.$http.post('/upload', form, {
+
+                    progress: (e) => {
+                        if (e.lengthComputable) {
+                            console.log(e.loaded + ' ' + e.total);
+                        }
+                    }
+
+                });
+            });
             // Store the metadata
             // Upload the video
         },
         store() {
             return this.$http
-                .post('/videos', {
+                .post("/videos", {
                     title: this.title,
                     description: this.description,
                     visibility: this.visibility,
                     extension: this.file.name.split(".").pop()
                 })
-                .then((response)=> {
+                .then(response => {
                     this.uid = response.data.uid;
                     console.log(this.uid);
                 });
@@ -105,18 +121,18 @@ export default {
             this.saveStatus = "Saving Changes";
 
             return this.$http
-                .put('/videos/' + this.uid, {
+                .put("/videos/" + this.uid, {
                     title: this.title,
                     description: this.description,
                     visibility: this.visibility
                 })
                 .then(
-                    (response) => {
+                    response => {
                         this.saveStatus = "Changes Saved";
 
                         setTimeout(() => {
-                            this.saveStatus = null
-                        }, 3000)
+                            this.saveStatus = null;
+                        }, 3000);
                     },
                     () => {
                         this.saveStatus = "Failed to save changes";

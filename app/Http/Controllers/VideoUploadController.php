@@ -10,4 +10,15 @@ class VideoUploadController extends Controller
     {
         return view('video.upload');
     }
+    
+    public function store(Request $request)
+    {
+        // Grab the user channel
+
+        // Lookup the video
+
+        // Move to temp location
+
+        // Upload the video on S3 Storage
+    }
 }

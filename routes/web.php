@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/channel/{channel}/edit', [ChannelSettingsController::class, 'update']);
 
     Route::get('/upload', [VideoUploadController::class, 'index']);
+    Route::post('/upload', [VideoUploadController::class, 'store']);
 
 
     Route::post('/videos', [VideoController::class, 'store']);

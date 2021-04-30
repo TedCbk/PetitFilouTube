@@ -1924,41 +1924,55 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     fileInputChange: function fileInputChange() {
+      var _this = this;
+
       this.uploading = true;
       this.failed = false;
       this.file = document.getElementById("video").files[0]; //    Upload a video
 
-      this.store().then(function () {}); // Store the metadata
+      this.store().then(function () {
+        var form = new FormData();
+        form.append('video', _this.file);
+        form.append('uid', _this.uid);
+
+        _this.$http.post('/upload', form, {
+          progress: function progress(e) {
+            if (e.lengthComputable) {
+              console.log(e.loaded + ' ' + e.total);
+            }
+          }
+        });
+      }); // Store the metadata
       // Upload the video
     },
     store: function store() {
-      var _this = this;
+      var _this2 = this;
 
-      return this.$http.post('/videos', {
+      return this.$http.post("/videos", {
         title: this.title,
         description: this.description,
         visibility: this.visibility,
         extension: this.file.name.split(".").pop()
       }).then(function (response) {
-        _this.uid = response.data.uid;
-        console.log(_this.uid);
+        _this2.uid = response.data.uid;
+        console.log(_this2.uid);
       });
     },
     update: function update() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.saveStatus = "Saving Changes";
-      return this.$http.put('/videos/' + this.uid, {
+      return this.$http.put("/videos/" + this.uid, {
         title: this.title,
         description: this.description,
         visibility: this.visibility
       }).then(function (response) {
-        _this2.saveStatus = "Changes Saved";
+        _this3.saveStatus = "Changes Saved";
         setTimeout(function () {
-          _this2.saveStatus = null;
+          _this3.saveStatus = null;
         }, 3000);
       }, function () {
-        _this2.saveStatus = "Failed to save changes";
+        _this3.saveStatus = "Failed to save changes";
       });
     }
   },
