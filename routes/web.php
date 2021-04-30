@@ -24,11 +24,13 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::group(['middleware' => ['auth']], function() {
-    Route::get('/channel/{channel}/edit', [ ChannelSettingsController::class, 'edit']);
-    Route::put('/channel/{channel}/edit', [ ChannelSettingsController::class, 'update']);
-    
-    Route::get('/upload', [ VideoUploadController::class, 'index']);
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/channel/{channel}/edit', [ChannelSettingsController::class, 'edit']);
+    Route::put('/channel/{channel}/edit', [ChannelSettingsController::class, 'update']);
+
+    Route::get('/upload', [VideoUploadController::class, 'index']);
+
 
     Route::post('/videos', [VideoController::class, 'store']);
+    Route::put('/videos/{video}', [VideoController::class, 'update']);
 });
