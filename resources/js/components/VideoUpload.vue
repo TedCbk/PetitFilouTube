@@ -14,7 +14,32 @@
                             v-if="!uploading"
                         />
 
+                        <div class="alert alert-danger" v-if="failed">
+                            Something went wrong, please try again
+                        </div>
+
                         <div id="video-form" v-if="uploading && !failed">
+                            <div
+                                class="alert alert-info"
+                                v-if="!uploadingComplete"
+                            >
+                                Your video will be available at <a href=""></a>{{ $root.url }}/videos/{{ uid }}
+                            </div>
+                            <div
+                                class="alert alert-info"
+                                v-if="uploadingComplete"
+                            >
+                                Upload complete. Video is now processing.
+                                <a href="/videos">Go to your videos</a>
+                            </div>
+
+                            <div class="progress" v-if="!uploadingComplete">
+                                <div
+                                    class="progress-bar"
+                                    v-bind:style="{ width: fileProgress + '%' }"
+                                ></div>
+                            </div>
+
                             <div class="form-group">
                                 <label for="title">Title</label>
                                 <input
@@ -73,7 +98,8 @@ export default {
             title: "Untitled",
             description: null,
             visibility: "private",
-            saveStatus: null
+            saveStatus: null,
+            fileProgress: 0
         };
     },
     methods: {
@@ -84,50 +110,59 @@ export default {
             this.file = document.getElementById("video").files[0];
 
             //    Upload a video
-            this.store().then(() => {
+            this.store().then(
+                () => {
+                    var form = new FormData();
 
-                var form = new FormData();
+                    form.append("video", this.file);
+                    form.append("uid", this.uid);
 
-                form.append('video', this.file);
-                form.append('uid', this.uid);
-
-                this.$http.post('/upload', form, {
-
-                    progress: (e) => {
-                        if (e.lengthComputable) {
-                            console.log(e.loaded + ' ' + e.total);
-                        }
-                    }
-
-                });
-            });
+                    this.$http.post('/upload', form, {
+                            progress: (e) => {
+                                if (e.lengthComputable) {
+                                    this.updateProgress(e)
+                                }
+                            }
+                        })
+                        .then(
+                            () => {
+                                this.uploadingComplete = true;
+                            },
+                            () => {
+                                this.failed = true;
+                            }
+                        );
+                },
+                () => {
+                    this.failed = true;
+                }
+            );
             // Store the metadata
             // Upload the video
         },
         store() {
             return this.$http
-                .post("/videos", {
+                .post('/videos', {
                     title: this.title,
                     description: this.description,
                     visibility: this.visibility,
                     extension: this.file.name.split(".").pop()
                 })
-                .then(response => {
+                .then((response) => {
                     this.uid = response.data.uid;
-                    console.log(this.uid);
                 });
         },
         update() {
             this.saveStatus = "Saving Changes";
 
             return this.$http
-                .put("/videos/" + this.uid, {
+                .put('/videos/' + this.uid, {
                     title: this.title,
                     description: this.description,
                     visibility: this.visibility
                 })
                 .then(
-                    response => {
+                    (response) => {
                         this.saveStatus = "Changes Saved";
 
                         setTimeout(() => {
@@ -138,6 +173,10 @@ export default {
                         this.saveStatus = "Failed to save changes";
                     }
                 );
+        },
+        updateProgress(e) {
+            e.percent = (e.loaded / e.total) * 100;
+            this.fileProgress = e.percent;
         }
     },
     ready() {}

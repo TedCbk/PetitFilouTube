@@ -1909,6 +1909,31 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
@@ -1919,7 +1944,8 @@ __webpack_require__.r(__webpack_exports__);
       title: "Untitled",
       description: null,
       visibility: "private",
-      saveStatus: null
+      saveStatus: null,
+      fileProgress: 0
     };
   },
   methods: {
@@ -1932,37 +1958,42 @@ __webpack_require__.r(__webpack_exports__);
 
       this.store().then(function () {
         var form = new FormData();
-        form.append('video', _this.file);
-        form.append('uid', _this.uid);
+        form.append("video", _this.file);
+        form.append("uid", _this.uid);
 
         _this.$http.post('/upload', form, {
           progress: function progress(e) {
             if (e.lengthComputable) {
-              console.log(e.loaded + ' ' + e.total);
+              _this.updateProgress(e);
             }
           }
+        }).then(function () {
+          _this.uploadingComplete = true;
+        }, function () {
+          _this.failed = true;
         });
+      }, function () {
+        _this.failed = true;
       }); // Store the metadata
       // Upload the video
     },
     store: function store() {
       var _this2 = this;
 
-      return this.$http.post("/videos", {
+      return this.$http.post('/videos', {
         title: this.title,
         description: this.description,
         visibility: this.visibility,
         extension: this.file.name.split(".").pop()
       }).then(function (response) {
         _this2.uid = response.data.uid;
-        console.log(_this2.uid);
       });
     },
     update: function update() {
       var _this3 = this;
 
       this.saveStatus = "Saving Changes";
-      return this.$http.put("/videos/" + this.uid, {
+      return this.$http.put('/videos/' + this.uid, {
         title: this.title,
         description: this.description,
         visibility: this.visibility
@@ -1974,6 +2005,10 @@ __webpack_require__.r(__webpack_exports__);
       }, function () {
         _this3.saveStatus = "Failed to save changes";
       });
+    },
+    updateProgress: function updateProgress(e) {
+      e.percent = e.loaded / e.total * 100;
+      this.fileProgress = e.percent;
     }
   },
   ready: function ready() {}
@@ -2018,7 +2053,8 @@ Vue.use(vue_resource__WEBPACK_IMPORTED_MODULE_0__.default);
  */
 
 var app = new Vue({
-  el: '#app'
+  el: '#app',
+  data: window.laratube
 });
 Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk';
 
@@ -37555,8 +37591,51 @@ var render = function() {
                 })
               : _vm._e(),
             _vm._v(" "),
+            _vm.failed
+              ? _c("div", { staticClass: "alert alert-danger" }, [
+                  _vm._v(
+                    "\n                        Something went wrong, please try again\n                    "
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
             _vm.uploading && !_vm.failed
               ? _c("div", { attrs: { id: "video-form" } }, [
+                  !_vm.uploadingComplete
+                    ? _c("div", { staticClass: "alert alert-info" }, [
+                        _vm._v(
+                          "\n                            Your video will be available at "
+                        ),
+                        _c("a", { attrs: { href: "" } }),
+                        _vm._v(
+                          _vm._s(_vm.$root.url) +
+                            "/videos/" +
+                            _vm._s(_vm.uid) +
+                            "\n                        "
+                        )
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.uploadingComplete
+                    ? _c("div", { staticClass: "alert alert-info" }, [
+                        _vm._v(
+                          "\n                            Upload complete. Video is now processing.\n                            "
+                        ),
+                        _c("a", { attrs: { href: "/videos" } }, [
+                          _vm._v("Go to your videos")
+                        ])
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  !_vm.uploadingComplete
+                    ? _c("div", { staticClass: "progress" }, [
+                        _c("div", {
+                          staticClass: "progress-bar",
+                          style: { width: _vm.fileProgress + "%" }
+                        })
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
                   _c("div", { staticClass: "form-group" }, [
                     _c("label", { attrs: { for: "title" } }, [_vm._v("Title")]),
                     _vm._v(" "),

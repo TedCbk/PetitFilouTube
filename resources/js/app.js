@@ -33,6 +33,7 @@ Vue.use(VueResource);
 
 const app = new Vue({
     el: '#app',
+    data: window.laratube
 });
 
 Vue.http.headers.common['Authorization'] = 'Basic YXBpOnBhc3N3b3Jk';
